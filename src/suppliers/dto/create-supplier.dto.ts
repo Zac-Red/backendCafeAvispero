@@ -4,7 +4,6 @@ export class CreateSupplierDto {
 
   @IsString()
   @IsOptional()
-  @MinLength(1)
   personeria?:string;
 
   @IsString()

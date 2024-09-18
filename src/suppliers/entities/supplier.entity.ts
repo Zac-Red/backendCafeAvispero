@@ -14,19 +14,19 @@ export class Supplier {
   @Column('text')
   namecontact:string;
 
-  @Column('bigint',{
+  @Column('int',{
     default: 0,
-    unique: true
   })
   tel:number;
 
-  @Column('bigint', {
-    default: 0,
+  @Column('int', {
     unique: true
   })
   dpi:number;
 
-  @Column('text')
+  @Column('text', {
+    default: "Sin dirección",
+  })
   address:string;
 
   @Column('boolean',{

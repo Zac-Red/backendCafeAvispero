@@ -1,6 +1,5 @@
 import { Supplier } from "src/suppliers/entities/supplier.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-// import { RawMaterialImage } from './rawmaterial-images.entity'
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'rawmaterials' })
 export class Rawmaterial {
@@ -12,6 +11,9 @@ export class Rawmaterial {
 
   @Column('text')
   description: string;
+
+  @Column('text')
+  url: string;
 
   @Column('float',{
     default: 0
@@ -43,11 +45,4 @@ export class Rawmaterial {
     { eager: true }
   )
   supplierId: Supplier;
-
-  // @OneToMany(
-  //   () => RawMaterialImage,
-  //   (rawmaterialimage) => rawmaterialimage.rawmaterial,
-  //   { cascade: true, eager: true }
-  // )
-  // images?: RawMaterialImage;
 }

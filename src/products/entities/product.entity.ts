@@ -12,6 +12,9 @@ export class Product {
   @Column('text')
   description: string;
 
+  @Column('text')
+  url: string;
+
   @Column('float',{
     default: 0
   })

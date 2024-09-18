@@ -10,6 +10,10 @@ export class CreateRawmaterialDto {
   @MinLength(1)
   description: string;
 
+  @IsString()
+  @MinLength(1)
+  url: string;
+
   @IsNumber()
   @IsPositive()
   @IsOptional()

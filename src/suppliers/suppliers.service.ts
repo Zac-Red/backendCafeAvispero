@@ -35,7 +35,7 @@ export class SuppliersService {
 
     qb.where('supplier.deleted = :deleted', { deleted: deleted });
     if (namecontact) {
-      qb.andWhere(`LOWER(supplier.lastname) LIKE :namecontact`, { namecontact: `%${namecontact.toLowerCase()}%` });
+      qb.andWhere(`LOWER(supplier.namecontact) LIKE :namecontact`, { namecontact: `%${namecontact.toLowerCase()}%` });
     }
     if (personeria) {
       qb.andWhere(`LOWER(supplier.personeria) LIKE :personeria`, { personeria: `%${personeria.toLowerCase()}%` });
