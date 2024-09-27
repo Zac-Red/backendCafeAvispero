@@ -1,3 +1,4 @@
+import { Shopping } from "src/shopping/entities/shopping.entity";
 import { Rawmaterial } from "../../rawmaterial/entities/rawmaterial.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -40,4 +41,11 @@ export class Supplier {
     { cascade: true }
   )
   rawmaterial: Rawmaterial;
+
+  @OneToMany(
+    () => Shopping,
+    (shopping) => shopping.supplierId,
+    { cascade: true }
+  )
+  shopping: Shopping;
 }

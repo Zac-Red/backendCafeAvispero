@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsOptional, IsString, MinLength } from "class-validator";
+import { IsBoolean, IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
 
 export class CreateSupplierDto {
 
@@ -11,9 +11,11 @@ export class CreateSupplierDto {
   namecontact:string;
 
   @IsNumber()
+  @IsPositive()
   tel:number;
 
   @IsNumber()
+  @IsPositive()
   @IsOptional()
   dpi?:number;
 
