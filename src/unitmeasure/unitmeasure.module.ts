@@ -9,6 +9,6 @@ import { Unitmeasure } from './entities/unitmeasure.entity';
   controllers: [UnitmeasureController],
   providers: [UnitmeasureService, HandleDBErrors],
   imports:[TypeOrmModule.forFeature([Unitmeasure])],
-  exports:[TypeOrmModule]
+  exports:[TypeOrmModule, UnitmeasureService]
 })
 export class UnitmeasureModule {}

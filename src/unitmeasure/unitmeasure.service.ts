@@ -25,28 +25,25 @@ export class UnitmeasureService {
     }
   }
 
-  async findAll(queryparamsunitmeasureDto:QueryParamsUnitmeasureDto) {
-    const {deleted=false, name, limit=10, page=1} = queryparamsunitmeasureDto;
+  async findAll(queryparamsunitmeasureDto: QueryParamsUnitmeasureDto) {
+    const { name, limit=10, page=1, deleted = false } = queryparamsunitmeasureDto;
     const qb = this.unitMeasureRepository.createQueryBuilder('unitmeasure');
-
-    qb.where('unitmeasure.deleted = :deleted', { deleted: deleted });
-    
     if (name) {
-      qb.andWhere(`LOWER(unitmeasure.name) LIKE :name`, { name: `%${name.toLowerCase()}%` });
+      qb.where(`LOWER(unitmeasure.name) LIKE :name`, { name: `%${name.toLowerCase()}%` });
     }
-    return await getAllPaginated(qb, {page, take: limit});    
+    return await getAllPaginated(qb, {page, take: limit}); 
   }
 
   async findOne(term: string) {
     let unitmeasure: Unitmeasure;
     let query = Number(term)    
     if (!Number.isNaN(query)) {
-      unitmeasure = await this.unitMeasureRepository.findOneBy({ id: query });
+      unitmeasure = await this.unitMeasureRepository.findOneBy({ id: query, deleted: false });
     } else {
       const queryBuilder = this.unitMeasureRepository.createQueryBuilder('unitmeasure')
       unitmeasure = await queryBuilder.where("LOWER(name) = LOWER(:name)", {name: term}).getOne();      
     }
-    if (!unitmeasure) throw new BadRequestException(`Usuario con ${term} no existe`);
+    if (!unitmeasure) throw new BadRequestException(`Unuidad de medida con ${term} no existe`);
     return unitmeasure;
   }
 
