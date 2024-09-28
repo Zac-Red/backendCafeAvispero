@@ -19,5 +19,9 @@ export class QueryParamsRawMaterials extends PaginationDto{
 
   @IsOptional()
   @IsString()
-  unitMeasure?:string
+  unitmeasure?:string
+
+  @IsOptional()
+  @IsString()
+  supplier?:string
 }
