@@ -1,5 +1,8 @@
+import { Inventoryrawmaterial } from "src/inventoryrawmaterial/entities/inventoryrawmaterial.entity";
+import { ShoppingDetail } from "src/shoppingdetail/entities/shoppingdetail.entity";
 import { Supplier } from "src/suppliers/entities/supplier.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Unitmeasure } from "src/unitmeasure/entities/unitmeasure.entity";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'rawmaterials' })
 export class Rawmaterial {
@@ -12,7 +15,9 @@ export class Rawmaterial {
   @Column('text')
   description: string;
 
-  @Column('text')
+  @Column('text', {
+    nullable: true
+  })
   url: string;
 
   @Column('float',{
@@ -24,9 +29,6 @@ export class Rawmaterial {
     default: 0
   })
   stock: number;
-
-  @Column('text')
-  unitMeasure: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -45,4 +47,23 @@ export class Rawmaterial {
     { eager: true }
   )
   supplierId: Supplier;
+
+  @ManyToOne(
+    () => Unitmeasure,
+    (unitmeasure) => unitmeasure.rawmaterial,
+    { eager: true }
+  )
+  unitmeasureId: Unitmeasure;
+
+  @OneToMany(
+    () => Inventoryrawmaterial,
+    (inventoryrawmaterial) => inventoryrawmaterial.rawmaterialId,
+  )
+  rawmaterialinventory: Inventoryrawmaterial;
+
+  @OneToMany(
+    () => ShoppingDetail,
+    (shoppingdetail) => shoppingdetail.rawmaterialId,
+  )
+  shoppingdetail: ShoppingDetail;
 }
