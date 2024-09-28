@@ -20,13 +20,12 @@ export class CreateRawmaterialDto {
   price?: number;
 
   @IsInt()
-  @IsPositive()
   @IsOptional()
   stock?: number;
 
-  @IsString()
-  @MinLength(1)
-  unitMeasure: string;
+  @IsNumber()
+  @IsPositive()
+  unitmeasureId: string;
 
   @IsString()
   @MinLength(1)
