@@ -19,7 +19,7 @@ export class ShoppingController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.shoppingService.findOne(+id);
+    return this.shoppingService.findOne(id);
   }
 
   @Patch(':id')
