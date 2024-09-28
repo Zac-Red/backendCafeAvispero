@@ -1,70 +1,97 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRawmaterialDto } from './dto/create-rawmaterial.dto';
 import { UpdateRawmaterialDto } from './dto/update-rawmaterial.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Rawmaterial } from './entities/rawmaterial.entity';
 import { UuidAdapter } from 'src/common/adapters/uui.adapter';
 import { HandleDBErrors } from 'src/common/adapters';
-import { Supplier } from 'src/suppliers/entities/supplier.entity';
-import { getPaginatedItems } from 'src/common/helpers/find.helpers';
+import { getAllPaginated } from 'src/common/helpers/find.helpers';
 import { QueryParamsRawMaterials } from './dto/query-params.dto';
 import { createRegister } from 'src/common/helpers/create.helper';
+import { SuppliersService } from 'src/suppliers/suppliers.service';
+import { UnitmeasureService } from 'src/unitmeasure/unitmeasure.service';
 
 @Injectable()
 export class RawmaterialService {
   constructor(
     @InjectRepository(Rawmaterial)
     private readonly rawMaterialRepository: Repository<Rawmaterial>,
-
-    @InjectRepository(Supplier)
-    private readonly SupplierRepository: Repository<Supplier>,
-
+    private readonly supplierservices: SuppliersService,
+    private readonly unitmeasureservices: UnitmeasureService,
     private readonly DBErrors: HandleDBErrors,
     private readonly uuidAdapter: UuidAdapter,
-  ){}
+  ) { }
 
   async create(createRawmaterialDto: CreateRawmaterialDto) {
-    const { supplierId } = createRawmaterialDto;
-    const supplier = await this.SupplierRepository.findOneBy({id: supplierId, deleted: false});
-    if (!supplier) throw new BadRequestException(`Suplier with ${supplierId} not found`);
-    try {  
-      return await createRegister(this.rawMaterialRepository, {...createRawmaterialDto, supplierId:supplier});
+    const { supplierId, unitmeasureId } = createRawmaterialDto;
+    const supplier = await this.supplierservices.findOne(supplierId);
+    const unitmeasure = await this.unitmeasureservices.findOne(unitmeasureId);
+    try {
+      return await createRegister(this.rawMaterialRepository, { ...createRawmaterialDto, supplierId: supplier, unitMeasureId: unitmeasure});
     } catch (error) {
       this.DBErrors.exceptionsDB(error);
     }
   }
 
   async findAll(queryparamsrawmaterial: QueryParamsRawMaterials) {
-    const { name, price, stock, unitMeasure, 
-            deleted = false, limit = 10, page = 1} = queryparamsrawmaterial;
-    let where = {deleted};
+    const { name, price, stock, unitmeasure, supplier,
+      deleted = false, limit = 10, page = 1 } = queryparamsrawmaterial;
+
+    const qb = this.rawMaterialRepository.createQueryBuilder('rawmaterial')
+    .leftJoinAndSelect("rawmaterial.unitmeasureId", "unitmeasure")
+    .leftJoinAndSelect("rawmaterial.supplierId", "supplier")
+
+    qb.where('rawmaterial.deleted = :deleted', { deleted: deleted });
     
     if (name) {
-      where['name'] = name;
+      qb.andWhere(`LOWER(user.name) LIKE :name`, { name: `%${name.toLowerCase()}%` });
     }
-    if (price) {
-      where['price'] = price;
-    } 
-    if (stock) {
-      where['stock'] = stock;
+    if (unitmeasure) {
+      qb.andWhere(`LOWER(unitmeasure.name) LIKE :name`, { name: `%${unitmeasure.toLowerCase()}%` });
     }
-    if (unitMeasure) {
-      where['unitMeasure'] = unitMeasure;
+
+    if (supplier) {
+      qb.andWhere(`LOWER(supplier.namecontact) LIKE :name`, { name: `%${supplier.toLowerCase()}%` });
     }
+
+    return await getAllPaginated(qb, { page, take: limit });
+  }
+
+  async findOne(term: string) {
+    let rawmaterial: Rawmaterial;
+    if (this.uuidAdapter.IsUUID(term)) {
+      rawmaterial = await this.rawMaterialRepository.findOneBy({ id: term });
+    } else {
+      const queryBuilder = this.rawMaterialRepository.createQueryBuilder('rawmaetrial')
+      rawmaterial = await queryBuilder.where("LOWER(name) = LOWER(:name)", { name: term }).getOne();
+    }
+    if (!rawmaterial) throw new BadRequestException(`Materia prima con termino ${term} no existe`);
+    return rawmaterial;
+  }
+
+  async update(id: string, updateRawmaterialDto: UpdateRawmaterialDto, manager?: EntityManager) {
+    const { supplierId, unitmeasureId, ...restDataRawmaterial } = updateRawmaterialDto;
+    const supplier = await this.supplierservices.findOne(supplierId);
+    const unitmeasure = await this.unitmeasureservices.findOne(unitmeasureId);
+
+    const rawmaterial = await this.rawMaterialRepository.preload({ id, 
+      supplierId: supplier, unitmeasureId: unitmeasure,  ...restDataRawmaterial });
+    if(!rawmaterial) throw new NotFoundException(`Materia prima con id: ${id} no existe`);
     
-    return await getPaginatedItems(this.rawMaterialRepository, {limit, page}, where )
-  }
-
-  findOne(id: string) {
-    return `This action returns a #${id} rawmaterial`;
-  }
-
-  update(id: string, updateRawmaterialDto: UpdateRawmaterialDto) {
-    return `This action updates a #${id} rawmaterial`;
+    const repo = manager ? manager.getRepository(Rawmaterial) : this.rawMaterialRepository;
+    try {
+      return repo.save({...rawmaterial});
+    } catch (error) {
+      this.DBErrors.exceptionsDB(error); 
+    }
   }
 
   async remove(id: string) {
-    return `This action removes a #${id} rawmaterial`;
+    const rawmaterial = await this.findOne(id);    
+    await this.rawMaterialRepository.save({...rawmaterial, deleted: true})
+    return {
+      message: "Materia prima eliminada"
+    }
   }
 }
