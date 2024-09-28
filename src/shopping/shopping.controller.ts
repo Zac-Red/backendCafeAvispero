@@ -26,9 +26,4 @@ export class ShoppingController {
   update(@Param('id') id: string, @Body() updateShoppingDto: UpdateShoppingDto) {
     return this.shoppingService.update(+id, updateShoppingDto);
   }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.shoppingService.remove(+id);
-  }
 }
