@@ -9,15 +9,17 @@ import { SuppliersService } from 'src/suppliers/suppliers.service';
 import { RawmaterialService } from 'src/rawmaterial/rawmaterial.service';
 import { ShoppingdetailService } from 'src/shoppingdetail/shoppingdetail.service';
 import { InventoryrawmaterialService } from 'src/inventoryrawmaterial/inventoryrawmaterial.service';
+import { QueryParamsShoppingDto } from './dto/query-params-shopping.dto';
+import { getAllPaginated } from 'src/common/helpers/find.helpers';
 
 @Injectable()
 export class ShoppingService {
   constructor(
     @InjectRepository(Shopping)
     private readonly shoppingRepository: Repository<Shopping>,
+    private readonly shoppingdetailservice: ShoppingdetailService,
     private readonly supplierservices: SuppliersService,
     private readonly rawmaterialservices: RawmaterialService,
-    private readonly shoppingdetailservice: ShoppingdetailService,
     private readonly inventoryrawmaterialservice: InventoryrawmaterialService,
     @InjectDataSource() 
     private readonly dataSource: DataSource,
@@ -38,6 +40,9 @@ export class ShoppingService {
         this.DBErrors.exceptionsDB(error);
       }
 
+      if (shoppingdetail.length === 0) 
+        throw new BadRequestException(`No se recibieron los detalles de la compra`);
+
       for (const detail of shoppingdetail) {
         const { rawmaterialId, amount, price, subtotal } = detail;
         const rawmaterial = await this.rawmaterialservices.findOne(rawmaterialId);
@@ -52,7 +57,7 @@ export class ShoppingService {
           restDatarawmaterial.id, 
           { ...restDatarawmaterial, 
             supplierId: restDatarawmaterial.supplierId.id, 
-            unitmeasureId: String(restDatarawmaterial.unitmeasureId.id), 
+            unitmeasureId: Number(restDatarawmaterial.unitmeasureId.id), 
             stock: stock + amount }, 
           manager
         );
@@ -63,27 +68,27 @@ export class ShoppingService {
         );
       }
     });
-    // try {
-    //   const supplier = await this.supplierservices.findOne(supplierId);
-    //   const shopping = await this.shoppingRepository.create({...restDataShopping, supplierId: supplier});
-    //   const shoppingComplet = await this.shoppingRepository.save(shopping);
-    //   for (const detail of shoppingdetail) {
-    //     const { rawmaterialId, amount, ...restDetail } = detail;
-    //     const rawmaterial = await this.rawmaterialservices.findOne(rawmaterialId);
-    //     await this.shoppingdetailservice.create({rawmaterialId, amount, ...restDetail, unitmeasureId: rawmaterial.unitmeasureId.id , shoppingId: shoppingComplet.id});
-    //     await this.rawmaterialservices.update(rawmaterialId, { stock: rawmaterial.stock + amount });
-    //     await this.inventoryrawmaterialservice.inventoryAdjustment({ amount, inventorymoveId: 2, rawmaterialId, unitmeasureId: rawmaterial.unitmeasureId.id});
-    //   }
-    // } catch (error) {
-    //   this.DBErrors.exceptionsDB(error);
-    // }
     return{
       shoppingComplet
     }
   }
 
-  findAll() {
-    return `This action returns all shopping`;
+  async findAll(queryparamsshoppingDto :QueryParamsShoppingDto) {
+    const { suppliername, total, commercialdocument, limit = 10, page = 1 } = queryparamsshoppingDto;
+
+    const qb = this.shoppingRepository.createQueryBuilder('shopings')
+    .leftJoinAndSelect("shopings.supplierId", "supplier")
+    
+    if (suppliername) {
+      qb.andWhere(`LOWER(supplier.name) LIKE :name`, { name: `%${suppliername.toLowerCase()}%` });
+    }
+    if (commercialdocument) {
+      qb.andWhere(`shopings.commercialdocument LIKE :commercialdocument`, { commercialdocument: `${commercialdocument}` });
+    }
+    if (total) {
+      qb.andWhere(`shopings.total =: total`, { total });
+    }
+    return await getAllPaginated(qb, { page, take: limit });
   }
 
   async findOne(term: string) {
