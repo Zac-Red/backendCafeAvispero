@@ -1,5 +1,7 @@
+import { Inventoryproduct } from "src/inventoryproduct/entities/inventoryproduct.entity";
+import { Salesdetail } from "src/salesdetail/entities/salesdetail.entity";
 import { Unitmeasure } from "src/unitmeasure/entities/unitmeasure.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'products' })
 export class Product {
@@ -31,6 +33,18 @@ export class Product {
     { eager: true }
   )
   unitmeasureId: Unitmeasure;
+
+  @OneToMany(
+    () => Inventoryproduct,
+    (inventoryproduct) => inventoryproduct.productId,
+  )
+  productinventory: Inventoryproduct;
+
+  @OneToMany(
+    () => Salesdetail,
+    (salesdetail) => salesdetail.productId,
+  )
+  saledetail: Salesdetail;
 
   @CreateDateColumn()
   createdAt: Date;
