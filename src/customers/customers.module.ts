@@ -9,6 +9,6 @@ import { HandleDBErrors, UuidAdapter } from 'src/common/adapters';
   controllers: [CustomersController],
   providers: [CustomersService, UuidAdapter, HandleDBErrors],
   imports: [TypeOrmModule.forFeature([Customer])],
-  exports:[TypeOrmModule]
+  exports:[TypeOrmModule, CustomersService]
 })
 export class CustomersModule {}
