@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString, MinLength } from "class-validator";
+import { IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
 
 export class CreateProductDto {
   @IsString()
@@ -22,5 +22,6 @@ export class CreateProductDto {
   stock?: number;
 
   @IsNumber()
+  @IsPositive()
   unitmeasureId: number
 }
