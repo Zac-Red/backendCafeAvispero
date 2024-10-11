@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { SalesService } from './sales.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
+import { QueryParamsSaleDto } from './dto/query-params-sales.dto';
 
 @Controller('sales')
 export class SalesController {
@@ -13,22 +14,17 @@ export class SalesController {
   }
 
   @Get()
-  findAll() {
-    return this.salesService.findAll();
+  findAll(@Query() queryparams: QueryParamsSaleDto) {
+    return this.salesService.findAll(queryparams);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.salesService.findOne(+id);
+    return this.salesService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSaleDto: UpdateSaleDto) {
     return this.salesService.update(+id, updateSaleDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.salesService.remove(+id);
   }
 }
