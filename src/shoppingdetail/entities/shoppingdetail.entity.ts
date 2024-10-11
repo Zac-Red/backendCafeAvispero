@@ -19,7 +19,7 @@ export class ShoppingDetail {
 
   @ManyToOne(
     () => Unitmeasure,
-    (unitmeasure) => unitmeasure.rawmaterial,
+    (unitmeasure) => unitmeasure.shoppingdetail,
     { eager: true }
   )
   unitmeasureId: Unitmeasure;
