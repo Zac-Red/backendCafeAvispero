@@ -26,7 +26,7 @@ export class RawmaterialService {
   async create(createRawmaterialDto: CreateRawmaterialDto) {
     const { supplierId, unitmeasureId } = createRawmaterialDto;
     const supplier = await this.supplierservices.findOne(supplierId);
-    const unitmeasure = await this.unitmeasureservices.findOne(unitmeasureId);
+    const unitmeasure = await this.unitmeasureservices.findOne(String(unitmeasureId));
     try {
       return await createRegister(this.rawMaterialRepository, { ...createRawmaterialDto, supplierId: supplier, unitMeasureId: unitmeasure});
     } catch (error) {
@@ -73,7 +73,7 @@ export class RawmaterialService {
   async update(id: string, updateRawmaterialDto: UpdateRawmaterialDto, manager?: EntityManager) {
     const { supplierId, unitmeasureId, ...restDataRawmaterial } = updateRawmaterialDto;
     const supplier = await this.supplierservices.findOne(supplierId);
-    const unitmeasure = await this.unitmeasureservices.findOne(unitmeasureId);
+    const unitmeasure = await this.unitmeasureservices.findOne(String(unitmeasureId));
 
     const rawmaterial = await this.rawMaterialRepository.preload({ id, 
       supplierId: supplier, unitmeasureId: unitmeasure,  ...restDataRawmaterial });
