@@ -1,3 +1,4 @@
+import { Inventoryproduct } from "src/inventoryproduct/entities/inventoryproduct.entity";
 import { Inventoryrawmaterial } from "src/inventoryrawmaterial/entities/inventoryrawmaterial.entity";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
@@ -22,6 +23,12 @@ export class Inventorymove {
     (inventoryrawmaterial) => inventoryrawmaterial.inventorymoveId,
   )
   inventoryrawmaterial: Inventoryrawmaterial;
+
+  @OneToMany(
+    () => Inventoryproduct,
+    (inventoryproduct) => inventoryproduct.inventorymoveId,
+  )
+  inventoryproduct: Inventoryproduct;
 
   @CreateDateColumn()
   createdAt: Date;
