@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ShoppingService } from './shopping.service';
 import { ShoppingController } from './shopping.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,8 +12,8 @@ import { HandleDBErrors, UuidAdapter } from 'src/common/adapters';
 @Module({
   controllers: [ShoppingController],
   providers: [ShoppingService, HandleDBErrors, UuidAdapter],
-  imports: [TypeOrmModule.forFeature([Shopping]), InventoryrawmaterialModule, 
-  SuppliersModule, RawmaterialModule, ShoppingdetailModule],
-  exports: [TypeOrmModule]
+  imports: [TypeOrmModule.forFeature([Shopping]), forwardRef(() =>ShoppingdetailModule),
+  SuppliersModule, RawmaterialModule, InventoryrawmaterialModule],
+  exports: [TypeOrmModule, ShoppingService]
 })
 export class ShoppingModule {}
