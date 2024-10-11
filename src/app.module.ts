@@ -14,6 +14,14 @@ import { ShoppingModule } from './shopping/shopping.module';
 import { RawmaterialModule } from './rawmaterial/rawmaterial.module';
 import { RolesModule } from './roles/roles.module';
 import { UnitmeasureModule } from './unitmeasure/unitmeasure.module';
+import { InventorymovesModule } from './inventorymoves/inventorymoves.module';
+import { InventoryrawmaterialModule } from './inventoryrawmaterial/inventoryrawmaterial.module';
+import { SalesdetailModule } from './salesdetail/salesdetail.module';
+import { ShoppingdetailModule } from './shoppingdetail/shoppingdetail.module';
+import { InventoryproductModule } from './inventoryproduct/inventoryproduct.module';
+import { ProductionsModule } from './productions/productions.module';
+import { DetailproductionModule } from './detailproduction/detailproduction.module';
+import { RecipproductionModule } from './recipproduction/recipproduction.module';
 
 @Module({
   imports: [
@@ -31,17 +39,25 @@ import { UnitmeasureModule } from './unitmeasure/unitmeasure.module';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname,'..','public'),
     }),
-    CommonModule,
-    DepartamentsModule,
-    SuppliersModule,
     AuthModule,
-    ProductsModule,
-    SalesModule,
+    CommonModule,
     CustomersModule,
-    ShoppingModule,
+    DepartamentsModule,
+    InventorymovesModule,
+    InventoryrawmaterialModule,
+    ProductsModule,
     RawmaterialModule,
     RolesModule,
+    SalesModule,
+    SalesdetailModule,
+    ShoppingModule,
+    ShoppingdetailModule,
+    SuppliersModule,
     UnitmeasureModule,
+    InventoryproductModule,
+    ProductionsModule,
+    DetailproductionModule,
+    RecipproductionModule,
   ],
 })
 export class AppModule {}
