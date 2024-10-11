@@ -25,7 +25,7 @@ export class CreateRawmaterialDto {
 
   @IsNumber()
   @IsPositive()
-  unitmeasureId: string;
+  unitmeasureId: number;
 
   @IsString()
   @MinLength(1)
