@@ -10,6 +10,6 @@ import { UnitmeasureModule } from 'src/unitmeasure/unitmeasure.module';
   controllers: [ProductsController],
   providers: [ProductsService, UuidAdapter, HandleDBErrors],
   imports: [TypeOrmModule.forFeature([Product]), UnitmeasureModule],
-  exports:[TypeOrmModule]
+  exports:[TypeOrmModule, ProductsService]
 })
 export class ProductsModule {}
