@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Sale } from "src/sales/entities/sale.entity";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'customers'})
 export class Customer {
@@ -24,4 +25,11 @@ export class Customer {
     default: false
   })
   deleted: boolean;
+
+  @OneToMany(
+    () => Sale,
+    (sale) => sale.customerId,
+    { cascade: true }
+  )
+  sale: Sale;
 }
