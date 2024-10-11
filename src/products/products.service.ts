@@ -4,27 +4,25 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HandleDBErrors, UuidAdapter } from 'src/common/adapters';
 import { Product } from './entities/product.entity';
-import { Repository } from 'typeorm';
-import { Unitmeasure } from 'src/unitmeasure/entities/unitmeasure.entity';
+import { EntityManager, Repository } from 'typeorm';
 import { createRegister } from 'src/common/helpers/create.helper';
 import { QueryParamsProductDto } from './dto/query-params-products.dto';
 import { getAllPaginated } from 'src/common/helpers/find.helpers';
+import { UnitmeasureService } from 'src/unitmeasure/unitmeasure.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
-    @InjectRepository(Unitmeasure)
-    private readonly unitmeasureRepository: Repository<Unitmeasure>,
+    private readonly unitmeasureservices: UnitmeasureService,
     private readonly uuidAdapter: UuidAdapter, 
     private readonly DBErrors: HandleDBErrors,
   ){}
 
   async create(createProductDto: CreateProductDto) {
     const {unitmeasureId, ...productData } = createProductDto;
-    const unitmeasure = await this.unitmeasureRepository.findOneBy({id: unitmeasureId});
-    if(!unitmeasure) throw new BadRequestException(`La unidad de medida con id ${unitmeasureId} no existe`);
+    const unitmeasure = await this.unitmeasureservices.findOne(String(unitmeasureId));
     try {
       return await createRegister(this.productRepository, {...productData, unitmeasureId: unitmeasure});
     } catch (error) {
@@ -69,15 +67,17 @@ export class ProductsService {
     return product;
   }
 
-  async update(id:string, updateProductDto: UpdateProductDto) {
+  async update(id:string, updateProductDto: UpdateProductDto, manager?: EntityManager) {
     const {unitmeasureId, ...updateProductrestData} = updateProductDto;
-    const unitmeasure = await this.unitmeasureRepository.findOneBy({id: unitmeasureId});
-    if(!unitmeasure) throw new BadRequestException(`La unidad de medida con id ${unitmeasureId} no existe`);
-    const product = await this.productRepository.preload({ id, unitmeasureId: unitmeasure, ...updateProductrestData });
+    const unitmeasure = await this.unitmeasureservices.findOne(String(unitmeasureId));
+    const product = await this.productRepository.preload({ id, 
+      unitmeasureId: unitmeasure, ...updateProductrestData });
     if(!product) throw new NotFoundException(`Producto con id: ${id} no existe`);
+    
+    const repo = manager ? manager.getRepository(Product) : this.productRepository;
+
     try {
-      await this.productRepository.save({...product});
-      return this.findOne(id)
+      return repo.save({...product});
     } catch (error) {
       this.DBErrors.exceptionsDB(error); 
     }
