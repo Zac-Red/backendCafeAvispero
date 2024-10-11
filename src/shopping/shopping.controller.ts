@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ShoppingService } from './shopping.service';
 import { CreateShoppingDto } from './dto/create-shopping.dto';
 import { UpdateShoppingDto } from './dto/update-shopping.dto';
+import { QueryParamsShoppingDto } from './dto/query-params-shopping.dto';
 
 @Controller('shopping')
 export class ShoppingController {
@@ -13,8 +14,8 @@ export class ShoppingController {
   }
 
   @Get()
-  findAll() {
-    return this.shoppingService.findAll();
+  findAll(@Query() queryparams: QueryParamsShoppingDto) {
+    return this.shoppingService.findAll(queryparams);
   }
 
   @Get(':id')
