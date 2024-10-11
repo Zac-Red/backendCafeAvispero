@@ -86,6 +86,7 @@ export class AuthService {
             deleted = false, limit=10, page=1} = queryparamsuserDto;
     
     const qb = this.userRepository.createQueryBuilder('user').leftJoinAndSelect("user.roleId", "role")
+    .orderBy("user.id", "ASC")
 
     if (typeof(IsActive) === "boolean") {
       qb.where("user.IsActive =:IsActive", { IsActive: IsActive });
