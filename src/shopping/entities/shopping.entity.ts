@@ -13,6 +13,9 @@ export class Shopping {
   @Column('float')
   total:number
 
+  @Column('date')
+  datecommercialdocument: Date;
+  
   @CreateDateColumn()
   createdAt: Date;
 
@@ -28,6 +31,5 @@ export class Shopping {
     (shoppingdetail) => shoppingdetail.shoppingId,
     { cascade: true }
   )
-  shoppingdetail: ShoppingDetail[];
-
+  shoppingdetail: ShoppingDetail;
 }
