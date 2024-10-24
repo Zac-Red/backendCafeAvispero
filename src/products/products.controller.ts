@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { QueryParamsProductDto } from './dto/query-params-products.dto';
+import { QueryParamsProductDto, QueryParamsReportTopProductsSaleDto } from './dto/query-params-products.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -16,6 +16,11 @@ export class ProductsController {
   @Get()
   findAll(@Query() queryparams: QueryParamsProductDto) {
     return this.productsService.findAll(queryparams);
+  }
+
+  @Get("topproducts")
+  reportTopProducts(@Query() queryparams: QueryParamsReportTopProductsSaleDto) {
+    return this.productsService.findTopProductsSales(queryparams);
   }
 
   @Get(':term')
