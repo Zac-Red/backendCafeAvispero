@@ -78,6 +78,7 @@ export class ShoppingService {
 
     const qb = this.shoppingRepository.createQueryBuilder('shopings')
     .leftJoinAndSelect("shopings.supplierId", "supplier")
+    .orderBy("shopings.createdAt", "DESC")
     
     if (suppliername) {
       qb.andWhere(`LOWER(supplier.name) LIKE :name`, { name: `%${suppliername.toLowerCase()}%` });
