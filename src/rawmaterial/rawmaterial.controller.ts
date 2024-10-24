@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { RawmaterialService } from './rawmaterial.service';
 import { CreateRawmaterialDto } from './dto/create-rawmaterial.dto';
 import { UpdateRawmaterialDto } from './dto/update-rawmaterial.dto';
-import { QueryParamsRawMaterials } from './dto/query-params.dto';
+import { QueryParamsRawMaterials, QueryParamsReportTopRawmaterialShoppDto } from './dto/query-params.dto';
 
 @Controller('rawmaterial')
 export class RawmaterialController {
@@ -16,6 +16,11 @@ export class RawmaterialController {
   @Get()
   findAll(@Query() QueryParams: QueryParamsRawMaterials) {
     return this.rawmaterialService.findAll(QueryParams);
+  }
+
+  @Get("toprawmaterialshopping")
+  reportTopRawMaterialShopping(@Query() queryparams: QueryParamsReportTopRawmaterialShoppDto) {
+    return this.rawmaterialService.findTopRawMaterialShopping(queryparams);
   }
 
   @Get(':id')
