@@ -1,4 +1,6 @@
+import { Detailproduction } from "src/detailproduction/entities/detailproduction.entity";
 import { Inventoryrawmaterial } from "src/inventoryrawmaterial/entities/inventoryrawmaterial.entity";
+import { Refinerawmaterial } from "src/refinerawmaterial/entities/refinerawmaterial.entity";
 import { ShoppingDetail } from "src/shoppingdetail/entities/shoppingdetail.entity";
 import { Supplier } from "src/suppliers/entities/supplier.entity";
 import { Unitmeasure } from "src/unitmeasure/entities/unitmeasure.entity";
@@ -25,7 +27,7 @@ export class Rawmaterial {
   })
   price: number;
 
-  @Column('int', {
+  @Column('float', {
     default: 0
   })
   stock: number;
@@ -66,4 +68,16 @@ export class Rawmaterial {
     (shoppingdetail) => shoppingdetail.rawmaterialId,
   )
   shoppingdetail: ShoppingDetail;
+
+  @OneToMany(
+    () => Detailproduction,
+    (detailproduction) => detailproduction.rawmaterialId,
+  )
+  detailproduction: Detailproduction;
+
+  @OneToMany(
+    () => Refinerawmaterial,
+    (refinerawmaterial) => refinerawmaterial.rawmaterialId,
+  )
+  refinerawmaterial: Refinerawmaterial;
 }
