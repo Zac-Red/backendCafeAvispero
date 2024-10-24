@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { SalesService } from './sales.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
-import { QueryParamsSaleDto } from './dto/query-params-sales.dto';
+import { QueryParamsReportTopClientesSaleDto, QueryParamsSaleDto } from './dto/query-params-sales.dto';
 
 @Controller('sales')
 export class SalesController {
@@ -16,6 +16,11 @@ export class SalesController {
   @Get()
   findAll(@Query() queryparams: QueryParamsSaleDto) {
     return this.salesService.findAll(queryparams);
+  }
+
+  @Get('/topcustomers')
+  reportTopClients(@Query() queryparams: QueryParamsReportTopClientesSaleDto) {
+    return this.salesService.findCustomersTop(queryparams);
   }
 
   @Get(':id')
