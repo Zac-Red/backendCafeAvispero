@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsDate, IsNumber, IsPositive, IsString, IsUUID, Matches, MinLength, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsNumber, IsPositive, IsString, IsUUID, Matches, MinLength, ValidateNested } from "class-validator";
 import { FormatShoppingdetailDto } from "src/shoppingdetail/dto/format-shoppingdetail.dto";
 
 export class CreateShoppingDto {
