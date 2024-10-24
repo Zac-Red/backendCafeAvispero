@@ -1,16 +1,17 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRawmaterialDto } from './dto/create-rawmaterial.dto';
 import { UpdateRawmaterialDto } from './dto/update-rawmaterial.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { Rawmaterial } from './entities/rawmaterial.entity';
 import { UuidAdapter } from 'src/common/adapters/uui.adapter';
 import { HandleDBErrors } from 'src/common/adapters';
 import { getAllPaginated } from 'src/common/helpers/find.helpers';
-import { QueryParamsRawMaterials } from './dto/query-params.dto';
+import { QueryParamsRawMaterials, QueryParamsReportTopRawmaterialShoppDto } from './dto/query-params.dto';
 import { createRegister } from 'src/common/helpers/create.helper';
 import { SuppliersService } from 'src/suppliers/suppliers.service';
 import { UnitmeasureService } from 'src/unitmeasure/unitmeasure.service';
+import { ShoppingDetail } from 'src/shoppingdetail/entities/shoppingdetail.entity';
 
 @Injectable()
 export class RawmaterialService {
@@ -19,9 +20,11 @@ export class RawmaterialService {
     private readonly rawMaterialRepository: Repository<Rawmaterial>,
     private readonly supplierservices: SuppliersService,
     private readonly unitmeasureservices: UnitmeasureService,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
     private readonly DBErrors: HandleDBErrors,
     private readonly uuidAdapter: UuidAdapter,
-  ) { }
+  ){}
 
   async create(createRawmaterialDto: CreateRawmaterialDto) {
     const { supplierId, unitmeasureId } = createRawmaterialDto;
@@ -58,6 +61,24 @@ export class RawmaterialService {
     return await getAllPaginated(qb, { page, take: limit });
   }
 
+  async findTopRawMaterialShopping(queryparamsreporttoprawmaterialshoppDto: QueryParamsReportTopRawmaterialShoppDto){
+    const {endOfCurrentMonth, startOfCurrentMonth} = queryparamsreporttoprawmaterialshoppDto;
+    const topRawmaterial = await this.dataSource
+    .createQueryBuilder(ShoppingDetail, 'shopingdetail')
+    .leftJoinAndSelect('shopingdetail.rawmaterialId', 'rawmaterial')
+    .leftJoinAndSelect('shopingdetail.shoppingId', 'shoping')
+    .where('DATE(shoping.createdAt) BETWEEN :startOfCurrentMonth AND :endOfCurrentMonth', { startOfCurrentMonth, endOfCurrentMonth })
+    .select('shopingdetail.rawmaterialId')
+    .addSelect('rawmaterial.name', 'rawmaterial_name') 
+    .addSelect('rawmaterial.url', 'url') 
+    .addSelect('SUM(shopingdetail.amount)', 'total_purchase')
+    .groupBy('shopingdetail.rawmaterialId, rawmaterial.name, rawmaterial.url')
+    .orderBy('total_purchase', 'DESC')
+    .limit(5)
+    .getRawMany();
+    return topRawmaterial;
+  }
+
   async findOne(term: string) {
     let rawmaterial: Rawmaterial;
     if (this.uuidAdapter.IsUUID(term)) {
@@ -86,6 +107,7 @@ export class RawmaterialService {
       this.DBErrors.exceptionsDB(error); 
     }
   }
+
 
   async remove(id: string) {
     const rawmaterial = await this.findOne(id);    
