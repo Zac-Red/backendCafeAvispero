@@ -7,6 +7,8 @@ import { Inventoryproduct } from './entities/inventoryproduct.entity';
 import { InventorymovesService } from 'src/inventorymoves/inventorymoves.service';
 import { HandleDBErrors } from 'src/common/adapters';
 import { createRegisterForTransaction } from 'src/common/helpers/create.helper';
+import { QueryParamsInventoryProductDto } from './dto/query-params-inventoryproducts.dto';
+import { getAllPaginated } from 'src/common/helpers/find.helpers';
 
 @Injectable()
 export class InventoryproductService {
@@ -28,19 +30,31 @@ export class InventoryproductService {
     }
   }
 
-  findAll() {
-    return `This action returns all inventoryproduct`;
+  async findAll(queryparamsinventoryproductDto: QueryParamsInventoryProductDto) {
+    const {amount, limit=10, page=1, product, tipomovimiento, unitmeasure} = queryparamsinventoryproductDto;
+
+    const qb = this.inventoryproductRepository.createQueryBuilder('invetoryproduct')
+    .leftJoinAndSelect("invetoryproduct.unitmeasureId", "unitmeasure")
+    .leftJoinAndSelect("invetoryproduct.productId", "product")
+    .leftJoinAndSelect("invetoryproduct.inventorymoveId", "inventorymove")
+    .orderBy("invetoryproduct.createdAt", "DESC")
+    
+    if (product) {
+      qb.andWhere(`LOWER(product.name) LIKE :name`, { name: `%${product.toLowerCase()}%` });
+    }
+    if (amount) {
+      qb.andWhere(`invetoryproduct.amount =:amount`, { amount });
+    }
+    if (unitmeasure) {
+      qb.andWhere(`LOWER(unitmeasure.name) LIKE :unitmeasure`, { unitmeasure: `%${unitmeasure.toLowerCase()}%` });
+    }
+    if (tipomovimiento) {
+      qb.andWhere(`LOWER(inventorymove.name) LIKE :tipomovimiento`, { tipomovimiento: `%${tipomovimiento.toLowerCase()}%` });
+    }
+    return await getAllPaginated(qb, {page, take: limit}); 
   }
 
   findOne(id: number) {
     return `This action returns a #${id} inventoryproduct`;
-  }
-
-  update(id: number, updateInventoryproductDto: UpdateInventoryproductDto) {
-    return `This action updates a #${id} inventoryproduct`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} inventoryproduct`;
   }
 }
