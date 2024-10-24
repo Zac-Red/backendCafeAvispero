@@ -20,8 +20,9 @@ import { SalesdetailModule } from './salesdetail/salesdetail.module';
 import { ShoppingdetailModule } from './shoppingdetail/shoppingdetail.module';
 import { InventoryproductModule } from './inventoryproduct/inventoryproduct.module';
 import { ProductionsModule } from './productions/productions.module';
-import { DetailproductionModule } from './detailproduction/detailproduction.module';
 import { RecipproductionModule } from './recipproduction/recipproduction.module';
+import { DetailproductionModule } from './detailproduction/detailproduction.module';
+import { RefinerawmaterialModule } from './refinerawmaterial/refinerawmaterial.module';
 
 @Module({
   imports: [
@@ -35,6 +36,9 @@ import { RecipproductionModule } from './recipproduction/recipproduction.module'
       port: +process.env.DB_PORT,
       autoLoadEntities: true,
       synchronize: true,
+      extra: {
+        options: '-c timezone=America/Guatemala',
+      },
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname,'..','public'),
@@ -56,8 +60,9 @@ import { RecipproductionModule } from './recipproduction/recipproduction.module'
     UnitmeasureModule,
     InventoryproductModule,
     ProductionsModule,
-    DetailproductionModule,
     RecipproductionModule,
+    DetailproductionModule,
+    RefinerawmaterialModule,
   ],
 })
 export class AppModule {}
