@@ -1,14 +1,15 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { HandleDBErrors, UuidAdapter } from 'src/common/adapters';
 import { Product } from './entities/product.entity';
-import { EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { createRegister } from 'src/common/helpers/create.helper';
-import { QueryParamsProductDto } from './dto/query-params-products.dto';
+import { QueryParamsProductDto, QueryParamsReportTopProductsSaleDto } from './dto/query-params-products.dto';
 import { getAllPaginated } from 'src/common/helpers/find.helpers';
 import { UnitmeasureService } from 'src/unitmeasure/unitmeasure.service';
+import { Salesdetail } from 'src/salesdetail/entities/salesdetail.entity';
 
 @Injectable()
 export class ProductsService {
@@ -16,6 +17,8 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
     private readonly unitmeasureservices: UnitmeasureService,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
     private readonly uuidAdapter: UuidAdapter, 
     private readonly DBErrors: HandleDBErrors,
   ){}
@@ -50,6 +53,24 @@ export class ProductsService {
       qb.andWhere(`LOWER(unitmeasure.name) LIKE :unitmeasure`, { unitmeasure: `%${unitmeasure.toLowerCase()}%` });
     }
     return await getAllPaginated(qb, {page, take: limit}); 
+  }
+
+  async findTopProductsSales(queryparamsreporttopproductssaleDto: QueryParamsReportTopProductsSaleDto){
+    const {endOfCurrentMonth, startOfCurrentMonth} = queryparamsreporttopproductssaleDto;
+    const topProducts = await this.dataSource
+    .createQueryBuilder(Salesdetail, 'salesdetail')
+    .leftJoinAndSelect('salesdetail.productId', 'product')
+    .leftJoinAndSelect('salesdetail.saleId', 'sale')
+    .where('sale.createdAt BETWEEN :startOfCurrentMonth AND :endOfCurrentMonth', { startOfCurrentMonth, endOfCurrentMonth })
+    .select('salesdetail.productId')
+    .addSelect('product.name', 'product_name') 
+    .addSelect('product.url', 'url') 
+    .addSelect('SUM(salesdetail.amount)', 'total_sold')
+    .groupBy('salesdetail.productId, product.name, product.url')
+    .orderBy('total_sold', 'DESC')
+    .limit(5)
+    .getRawMany();
+    return topProducts;
   }
 
   async findOne(term: string) {
