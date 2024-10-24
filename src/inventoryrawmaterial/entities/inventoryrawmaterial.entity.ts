@@ -8,7 +8,7 @@ export class Inventoryrawmaterial {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('int',{
+  @Column('float',{
     default: 0
   })
   amount: number;
