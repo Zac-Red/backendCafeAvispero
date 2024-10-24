@@ -1,4 +1,5 @@
 import { Inventoryproduct } from "src/inventoryproduct/entities/inventoryproduct.entity";
+import { Recipproduction } from "src/recipproduction/entities/recipproduction.entity";
 import { Salesdetail } from "src/salesdetail/entities/salesdetail.entity";
 import { Unitmeasure } from "src/unitmeasure/entities/unitmeasure.entity";
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
@@ -14,7 +15,9 @@ export class Product {
   @Column('text')
   description: string;
 
-  @Column('text')
+  @Column('text',{
+    nullable: true
+  })
   url: string;
 
   @Column('float',{
@@ -46,6 +49,12 @@ export class Product {
   )
   saledetail: Salesdetail;
 
+  @OneToMany(
+    () => Recipproduction,
+    (recipproduction) => recipproduction.productId,
+  )
+  recipproduction: Recipproduction;
+  
   @CreateDateColumn()
   createdAt: Date;
 
