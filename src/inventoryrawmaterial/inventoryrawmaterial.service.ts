@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Inventoryrawmaterial } from './entities/inventoryrawmaterial.entity';
 import { InventorymovesService } from 'src/inventorymoves/inventorymoves.service';
-import { createRegister, createRegisterForTransaction } from 'src/common/helpers/create.helper';
+import { createRegisterForTransaction } from 'src/common/helpers/create.helper';
 import { HandleDBErrors } from 'src/common/adapters';
 import { QueryParamsInventoryRawMaterialDto } from './dto/query-params-inventoryrawmaterial.dto';
 import { getAllPaginated } from 'src/common/helpers/find.helpers';
@@ -30,26 +30,25 @@ export class InventoryrawmaterialService {
   }
 
   async findAll(queryparamsinventoryrawmaterialDto: QueryParamsInventoryRawMaterialDto) {
-    const { amaount, moveinventory, rawmaterial, unitmeasure, deleted = false, 
-      limit=10, page=1} = queryparamsinventoryrawmaterialDto;
+    const { amount, moveinventory, rawmaterial, unitmeasure, limit=10, page=1} = queryparamsinventoryrawmaterialDto;
     
     const qb = this.inventoryrawmaterialRepository.createQueryBuilder('inventoryrawmaterial')
       .leftJoinAndSelect("inventoryrawmaterial.unitmeasureId", "unitmeasure")
       .leftJoinAndSelect("inventoryrawmaterial.rawmaterialId", "rawmaterial")
       .leftJoinAndSelect("inventoryrawmaterial.inventorymoveId", "inventorymove")
-
-    qb.where('product.deleted = :deleted', { deleted: deleted });
-    if (rawmaterial) {
-      qb.andWhere(`LOWER(unitmeasure.name) LIKE :rawmaterial`, { rawmaterial: `%${rawmaterial.toLowerCase()}%` });
+      .orderBy("inventoryrawmaterial.createdAt", "DESC")
+    
+    if (amount) {
+      qb.andWhere(`inventoryrawmaterial.amount =:amount`, { amount });
+    }
+    if (unitmeasure) {
+      qb.andWhere(`LOWER(unitmeasure.name) LIKE :unitmeasure`, { unitmeasure: `%${unitmeasure.toLowerCase()}%` });
     }
     if (moveinventory) {
       qb.andWhere(`LOWER(inventorymove.name) LIKE :moveinventory`, { moveinventory: `%${moveinventory.toLowerCase()}%` });
     }
-    if (amaount) {
-      qb.andWhere(`inventoryrawmaterial.amaount =:amaount`, { amaount: amaount });
-    }
-    if (unitmeasure) {
-      qb.andWhere(`LOWER(unitmeasure.name) LIKE :unitmeasure`, { unitmeasure: `%${unitmeasure.toLowerCase()}%` });
+    if (rawmaterial) {      
+      qb.andWhere(`LOWER(rawmaterial.name) LIKE :rawmaterial`, { rawmaterial: `%${rawmaterial.toLowerCase()}%` });
     }
     return await getAllPaginated(qb, {page, take: limit}); 
   }
@@ -57,8 +56,4 @@ export class InventoryrawmaterialService {
   findOne(id: number) {
     return `This action returns a #${id} inventoryrawmaterial`;
   }
-
-  // update(id: number, updateInventoryrawmaterialDto: UpdateInventoryrawmaterialDto) {
-  //   return `This action updates a #${id} inventoryrawmaterial`;
-  // }
 }
