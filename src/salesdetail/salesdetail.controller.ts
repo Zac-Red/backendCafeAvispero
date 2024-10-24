@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { SalesdetailService } from './salesdetail.service';
 import { CreateSalesdetailDto } from './dto/create-salesdetail.dto';
-import { UpdateSalesdetailDto } from './dto/update-salesdetail.dto';
 
 @Controller('salesdetail')
 export class SalesdetailController {
@@ -15,10 +14,5 @@ export class SalesdetailController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.salesdetailService.findOne(id);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.salesdetailService.remove(+id);
   }
 }
