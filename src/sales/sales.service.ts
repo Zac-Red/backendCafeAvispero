@@ -9,8 +9,9 @@ import { SalesdetailService } from 'src/salesdetail/salesdetail.service';
 import { CustomersService } from 'src/customers/customers.service';
 import { ProductsService } from 'src/products/products.service';
 import { InventoryproductService } from 'src/inventoryproduct/inventoryproduct.service';
-import { QueryParamsSaleDto } from './dto/query-params-sales.dto';
+import { QueryParamsReportTopClientesSaleDto, QueryParamsSaleDto } from './dto/query-params-sales.dto';
 import { getAllPaginated } from 'src/common/helpers/find.helpers';
+import { Customer } from 'src/customers/entities/customer.entity';
 
 @Injectable()
 export class SalesService {
@@ -76,13 +77,13 @@ export class SalesService {
     };
   }
 
-  async findAll(queryparamssaleDto:QueryParamsSaleDto) {
-    const { clientname, total, deleted = false, limit = 10, page = 1 } = queryparamssaleDto;
+  async findAll(queryparamssaleDto: QueryParamsSaleDto) {
+    const { clientname, total, limit = 10, page = 1 } = queryparamssaleDto;
 
     const qb = this.saleRepository.createQueryBuilder('sales')
-    .leftJoinAndSelect("sales.customerId", "customer")
-    .orderBy("sales.id", "ASC")
-    
+      .leftJoinAndSelect("sales.customerId", "customer")
+      .orderBy("sales.createdAt", "DESC")
+
     if (clientname) {
       qb.andWhere(`LOWER(customer.name) LIKE :name`, { name: `%${clientname.toLowerCase()}%` });
     }
@@ -94,11 +95,33 @@ export class SalesService {
 
   async findOne(id: string) {
     let sale: Sale;
-    if(this.uuidAdapter.IsUUID(id)){
+    if (this.uuidAdapter.IsUUID(id)) {
       sale = await this.saleRepository.findOneBy({ id });
     }
     if (!sale) throw new BadRequestException(`La venta con id ${id} no existe`);
     return sale;
+  }
+
+  async findCustomersTop(queryparamsreporttopclientessaleDto: QueryParamsReportTopClientesSaleDto) {
+    const { startOfCurrentMonth, endOfCurrentMonth } = queryparamsreporttopclientessaleDto;
+    const topCustomers = await this.dataSource
+      .getRepository(Sale)
+      .createQueryBuilder('sale')
+      .select('sale.customerId', 'customerId')
+      .addSelect('SUM(sale.total)', 'total_spent')
+      .addSelect('COUNT(sale.id)', 'purchase_count')
+      .addSelect('customer.name', 'customer_name') 
+      .addSelect('customer.nit', 'nit') 
+      .leftJoin(Customer, 'customer', 'customer.id = sale.customerId')
+      .where('DATE(sale.createdAt) BETWEEN :startOfCurrentMonth AND :endOfCurrentMonth', {
+        startOfCurrentMonth,
+        endOfCurrentMonth,
+      })
+      .groupBy('sale.customerId, customer.name, customer.nit')
+      .orderBy('total_spent', 'DESC')
+      .limit(5)
+      .getRawMany();
+    return topCustomers;
   }
 
   update(id: number, updateSaleDto: UpdateSaleDto) {
