@@ -1,15 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { InventoryproductService } from './inventoryproduct.service';
-import { CreateInventoryproductDto } from './dto/create-inventoryproduct.dto';
-import { UpdateInventoryproductDto } from './dto/update-inventoryproduct.dto';
+import { QueryParamsInventoryProductDto } from './dto/query-params-inventoryproducts.dto';
+
 
 @Controller('inventoryproduct')
 export class InventoryproductController {
   constructor(private readonly inventoryproductService: InventoryproductService) {}
 
   @Get()
-  findAll() {
-    return this.inventoryproductService.findAll();
+  findAll(@Query() queryparams: QueryParamsInventoryProductDto) {
+    return this.inventoryproductService.findAll(queryparams);
   }
 
   @Get(':id')
