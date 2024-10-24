@@ -6,7 +6,7 @@ export class QueryParamsInventoryRawMaterialDto extends PaginationDto {
   
   @IsOptional()
   @Type(()=> Number)
-  amaount?: number;
+  amount?: number;
 
   @IsOptional()
   @IsString()
