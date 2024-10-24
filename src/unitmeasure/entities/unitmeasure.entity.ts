@@ -1,3 +1,4 @@
+import { Detailproduction } from "src/detailproduction/entities/detailproduction.entity";
 import { Inventoryproduct } from "src/inventoryproduct/entities/inventoryproduct.entity";
 import { Inventoryrawmaterial } from "src/inventoryrawmaterial/entities/inventoryrawmaterial.entity";
 import { Product } from "src/products/entities/product.entity";
@@ -16,6 +17,11 @@ export class Unitmeasure {
 
   @Column('text')
   description: string;
+
+  @Column('float',{
+    default: 0
+  })
+  conversionfactor: number;
 
   @Column('boolean', {
     default: false
@@ -57,6 +63,12 @@ export class Unitmeasure {
     (inventoryproduct) => inventoryproduct.unitmeasureId,
   )
   inventoryproduct: Inventoryproduct;
+
+  @OneToMany(
+    () => Detailproduction,
+    (detailproduction) => detailproduction.unitmeasureId,
+  )
+  detailproduction: Detailproduction;
 
   @CreateDateColumn()
   createdAt: Date;

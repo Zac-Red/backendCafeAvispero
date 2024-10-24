@@ -1,4 +1,4 @@
-import { IsString, MinLength } from "class-validator";
+import { IsNumber, IsString, MinLength } from "class-validator";
 
 export class CreateUnitmeasureDto {
   @IsString()
@@ -8,4 +8,7 @@ export class CreateUnitmeasureDto {
   @IsString()
   @MinLength(1)
   description: string;
+
+  @IsNumber()
+  conversionfactor: number;
 }
