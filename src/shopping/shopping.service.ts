@@ -1,6 +1,5 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateShoppingDto } from './dto/create-shopping.dto';
-import { UpdateShoppingDto } from './dto/update-shopping.dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Shopping } from './entities/shopping.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -11,6 +10,7 @@ import { ShoppingdetailService } from 'src/shoppingdetail/shoppingdetail.service
 import { InventoryrawmaterialService } from 'src/inventoryrawmaterial/inventoryrawmaterial.service';
 import { QueryParamsShoppingDto } from './dto/query-params-shopping.dto';
 import { getAllPaginated } from 'src/common/helpers/find.helpers';
+import { ShoppingDetail } from 'src/shoppingdetail/entities/shoppingdetail.entity';
 
 @Injectable()
 export class ShoppingService {
@@ -81,13 +81,13 @@ export class ShoppingService {
     .orderBy("shopings.createdAt", "DESC")
     
     if (suppliername) {
-      qb.andWhere(`LOWER(supplier.name) LIKE :name`, { name: `%${suppliername.toLowerCase()}%` });
+      qb.andWhere(`LOWER(supplier.namecontact) LIKE :name`, { name: `%${suppliername.toLowerCase()}%` });
     }
     if (commercialdocument) {
       qb.andWhere(`shopings.commercialdocument LIKE :commercialdocument`, { commercialdocument: `${commercialdocument}` });
     }
     if (total) {
-      qb.andWhere(`shopings.total =: total`, { total });
+      qb.andWhere(`shopings.total =:total`, { total });
     }
     return await getAllPaginated(qb, { page, take: limit });
   }
@@ -101,7 +101,43 @@ export class ShoppingService {
     return shopping;
   }
 
-  update(id: number, updateShoppingDto: UpdateShoppingDto) {
-    return `This action updates a #${id} shopping`;
+  async revertShopping(shoppingId: string) {
+    await this.dataSource.transaction(async (manager) => {
+      // 1. Obtener la compra y sus detalles
+      const shopping = await manager.findOne(Shopping, { where: { id: shoppingId }});
+      if (!shopping) throw new NotFoundException(`Compra con ID ${shoppingId} no encontrada`);
+      
+      const { shoppingdetails } = await this.shoppingdetailservice.findOne(shopping.id)
+      // 2. Revertir los detalles de materias primas
+      for (const detail of shoppingdetails) {
+        const { rawmaterialId, amount } = detail;
+        const rawmaterial = await this.rawmaterialservices.findOne(rawmaterialId.id);
+  
+        // Reducir el stock revertido
+        const newStock = rawmaterial.stock - amount;
+        await this.rawmaterialservices.update(
+          rawmaterialId.id,
+          {
+            ...rawmaterial,
+            supplierId: rawmaterial.supplierId.id,
+            unitmeasureId: Number(rawmaterial.unitmeasureId.id),
+            stock: newStock
+          },
+          manager
+        );
+  
+        // Registrar ajuste de inventario negativo
+        await this.inventoryrawmaterialservice.inventoryAdjustment(
+          { amount: amount, inventorymoveId: 1, rawmaterialId: rawmaterialId.id, unitmeasureId: rawmaterial.unitmeasureId.id },
+          manager
+        );
+      }
+  
+      // 3. Eliminar detalles de la compra
+      await manager.delete(ShoppingDetail, { shoppingId: shopping.id });
+  
+      // 4. Eliminar el registro de compra
+      await manager.delete(Shopping, { id: shoppingId });
+    });
   }
 }

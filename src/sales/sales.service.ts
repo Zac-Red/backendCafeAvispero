@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
@@ -12,6 +12,7 @@ import { InventoryproductService } from 'src/inventoryproduct/inventoryproduct.s
 import { QueryParamsReportTopClientesSaleDto, QueryParamsSaleDto } from './dto/query-params-sales.dto';
 import { getAllPaginated } from 'src/common/helpers/find.helpers';
 import { Customer } from 'src/customers/entities/customer.entity';
+import { Salesdetail } from 'src/salesdetail/entities/salesdetail.entity';
 
 @Injectable()
 export class SalesService {
@@ -124,11 +125,43 @@ export class SalesService {
     return topCustomers;
   }
 
-  update(id: number, updateSaleDto: UpdateSaleDto) {
-    return `This action updates a #${id} sale`;
-  }
+  async revertSale(saleId: string) {
+    await this.dataSource.transaction(async (manager) => {
+      // 1. Obtener la venta y sus detalles
+      const sale = await manager.findOne(Sale, { where: { id: saleId } });
+      if (!sale) throw new NotFoundException(`Venta con ID ${saleId} no encontrada`);
+      
+      const { salesdetails } = await this.salesdetailservice.findOne(sale.id);
 
-  remove(id: number) {
-    return `This action removes a #${id} sale`;
+      // 2. Revertir los detalles de productos
+      for (const detail of salesdetails) {
+        const { productId, amount } = detail;
+        const product = await this.productsservice.findOne(productId.id);
+  
+        // Incrementar stock revertido
+        const newStock = product.stock + amount;
+        await this.productsservice.update(
+          productId.id,
+          {
+            ...product,
+            unitmeasureId: Number(product.unitmeasureId.id),
+            stock: newStock
+          },
+          manager
+        );
+  
+        // Registrar ajuste de inventario negativo
+        await this.inventoryproductservice.inventoryAdjustment(
+          { amount: amount, inventorymoveId: 3, productId: productId.id, unitmeasureId: product.unitmeasureId.id },
+          manager
+        );
+      }
+  
+      // 3. Eliminar detalles de la venta
+      await manager.delete(Salesdetail, { saleId: sale.id });
+  
+      // 4. Eliminar el registro de venta
+      await manager.delete(Sale, { id: saleId });
+    });
   }
 }

@@ -6,12 +6,13 @@ import { Detailproduction } from './entities/detailproduction.entity';
 import { RawmaterialModule } from 'src/rawmaterial/rawmaterial.module';
 import { RecipproductionModule } from 'src/recipproduction/recipproduction.module';
 import { HandleDBErrors, UuidAdapter } from 'src/common/adapters';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [DetailproductionController],
   providers: [DetailproductionService, HandleDBErrors, UuidAdapter],
   imports: [TypeOrmModule.forFeature([Detailproduction]), RawmaterialModule, 
-  forwardRef(() =>RecipproductionModule)],
+  forwardRef(() =>RecipproductionModule), AuthModule],
   exports: [TypeOrmModule, DetailproductionService]
 })
 export class DetailproductionModule {}

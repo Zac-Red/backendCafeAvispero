@@ -38,8 +38,8 @@ export class RawmaterialService {
   }
 
   async findAll(queryparamsrawmaterial: QueryParamsRawMaterials) {
-    const { name, price, stock, unitmeasure, supplier,
-      deleted = false, limit = 10, page = 1 } = queryparamsrawmaterial;
+    const { name, unitmeasure, supplier, supplierId,
+    deleted = false, limit = 10, page = 1 } = queryparamsrawmaterial;
 
     const qb = this.rawMaterialRepository.createQueryBuilder('rawmaterial')
     .leftJoinAndSelect("rawmaterial.unitmeasureId", "unitmeasure")
@@ -48,16 +48,19 @@ export class RawmaterialService {
     qb.where('rawmaterial.deleted = :deleted', { deleted: deleted });
     
     if (name) {
-      qb.andWhere(`LOWER(user.name) LIKE :name`, { name: `%${name.toLowerCase()}%` });
+      qb.andWhere(`LOWER(rawmaterial.name) LIKE :name`, { name: `%${name.toLowerCase()}%` });
     }
     if (unitmeasure) {
       qb.andWhere(`LOWER(unitmeasure.name) LIKE :name`, { name: `%${unitmeasure.toLowerCase()}%` });
     }
-
     if (supplier) {
       qb.andWhere(`LOWER(supplier.namecontact) LIKE :name`, { name: `%${supplier.toLowerCase()}%` });
     }
-
+    if (supplierId) {
+      if (this.uuidAdapter.IsUUID(supplierId)) {
+        qb.andWhere(`supplier.id = :supplierId`, { supplierId });
+      }
+    }
     return await getAllPaginated(qb, { page, take: limit });
   }
 

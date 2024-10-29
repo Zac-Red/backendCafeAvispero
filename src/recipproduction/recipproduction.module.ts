@@ -8,16 +8,14 @@ import { ProductsModule } from 'src/products/products.module';
 import { RawmaterialModule } from 'src/rawmaterial/rawmaterial.module';
 import { DetailproductionModule } from 'src/detailproduction/detailproduction.module';
 import { UnitmeasureModule } from 'src/unitmeasure/unitmeasure.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [RecipproductionController],
   providers: [RecipproductionService, HandleDBErrors, UuidAdapter],
-  imports: [TypeOrmModule.forFeature([Recipproduction]), 
-  ProductsModule,
-  RawmaterialModule, 
-  UnitmeasureModule, 
-  forwardRef(()=> DetailproductionModule)
-  ],
+  imports: [TypeOrmModule.forFeature([Recipproduction]), ProductsModule,
+  RawmaterialModule, UnitmeasureModule, forwardRef(()=> DetailproductionModule),
+  AuthModule],
   exports: [TypeOrmModule, RecipproductionService]
 })
 export class RecipproductionModule {}

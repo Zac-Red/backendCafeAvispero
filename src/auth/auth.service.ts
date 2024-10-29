@@ -172,4 +172,34 @@ export class AuthService {
     }
   }
 
+  async seedusercreate() {
+    const defaultUser:CreateUserDto = {
+      password:   process.env.DEFAULT_ADMIN_PASSWORD,
+      roleId: Number(process.env.DEFAULT_ADMIN_ROLE),
+      dpi:  Number(process.env.DEFAULT_ADMIN_DPI),
+      email:  process.env.DEFAULT_ADMIN_EMAIL,
+      firstname:  process.env.DEFAULT_ADMIN_FIRTSNAME,
+      lastname:  process.env.DEFAULT_ADMIN_LASTNAME,
+      phone: Number(process.env.DEFAULT_ADMIN_PHONE)
+    }
+    
+    const { roleId, password, ...restdata } = defaultUser
+    const role = await this.roleRepository.findOneBy({id: Number(roleId)});
+    if(!role) throw new BadRequestException(`Role con id ${defaultUser.roleId} no existe`);
+    try {
+      const user = this.userRepository.create({
+        ...restdata,
+        roleId: role,
+        //? usando hash para encriptar el password
+        password: bcrypt.hashSync( password, 10 )
+      });
+      await this.userRepository.save(user);
+      delete user.password;
+      return {
+        ...user,
+      };
+    } catch (error) {
+      this.DBErrors.exceptionsDB(error);
+    }
+  }
 }

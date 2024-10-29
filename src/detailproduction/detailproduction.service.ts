@@ -55,12 +55,4 @@ export class DetailproductionService {
       detailsproduction,
     };
   }
-
-  update(id: number, updateDetailproductionDto: UpdateDetailproductionDto) {
-    return `This action updates a #${id} detailproduction`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} detailproduction`;
-  }
 }

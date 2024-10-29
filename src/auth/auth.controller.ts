@@ -13,7 +13,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('create')
-  // @Auth( ValidRoles.SuperUser)
+  @Auth( ValidRoles.SuperUser)
   @HttpCode(200)
   create(@Body() createUserDto: CreateUserDto) {
     return this.authService.create(createUserDto);
@@ -32,8 +32,13 @@ export class AuthController {
     return this.authService.checkAuthStatus(user);
   }
 
+  @Get('seed')
+  seeduser(){
+    return this.authService.seedusercreate();
+  }
+
   @Get()
-  //@Auth( ValidRoles.SuperUser )
+  @Auth( ValidRoles.SuperUser )
   findAll(@Query() queryparams: QueryParamsUserDto) {
     return this.authService.findAll(queryparams);
   }
@@ -55,4 +60,5 @@ export class AuthController {
   remove(@Param('id') id: string) {
     return this.authService.remove(id);
   }
+
 }

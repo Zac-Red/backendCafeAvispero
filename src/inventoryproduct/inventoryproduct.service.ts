@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateInventoryproductDto } from './dto/create-inventoryproduct.dto';
-import { UpdateInventoryproductDto } from './dto/update-inventoryproduct.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Inventoryproduct } from './entities/inventoryproduct.entity';
@@ -17,7 +16,6 @@ export class InventoryproductService {
     private readonly inventoryproductRepository: Repository<Inventoryproduct>,
     private readonly inventorymoveservices: InventorymovesService,
     private readonly DBErrors: HandleDBErrors,
-    // private readonly uuidAdapter: UuidAdapter, 
   ){}
 
   async inventoryAdjustment(createInventoryproductDto: CreateInventoryproductDto, manager?: EntityManager) {
@@ -54,7 +52,4 @@ export class InventoryproductService {
     return await getAllPaginated(qb, {page, take: limit}); 
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} inventoryproduct`;
-  }
 }

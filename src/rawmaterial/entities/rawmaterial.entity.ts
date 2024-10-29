@@ -1,5 +1,6 @@
 import { Detailproduction } from "src/detailproduction/entities/detailproduction.entity";
 import { Inventoryrawmaterial } from "src/inventoryrawmaterial/entities/inventoryrawmaterial.entity";
+import { Conversionrawmaterial } from "src/refinerawmaterial/entities/conversionrawmaterial.entity";
 import { Refinerawmaterial } from "src/refinerawmaterial/entities/refinerawmaterial.entity";
 import { ShoppingDetail } from "src/shoppingdetail/entities/shoppingdetail.entity";
 import { Supplier } from "src/suppliers/entities/supplier.entity";
@@ -80,4 +81,10 @@ export class Rawmaterial {
     (refinerawmaterial) => refinerawmaterial.rawmaterialId,
   )
   refinerawmaterial: Refinerawmaterial;
+
+  @OneToMany(
+    () => Conversionrawmaterial,
+    (conversionrawmaterial) => conversionrawmaterial.rawmaterialId,
+  )
+  conversionrawmaterial: Conversionrawmaterial;
 }

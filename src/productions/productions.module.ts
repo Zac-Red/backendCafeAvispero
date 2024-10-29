@@ -9,13 +9,14 @@ import { RawmaterialModule } from 'src/rawmaterial/rawmaterial.module';
 import { DetailproductionModule } from 'src/detailproduction/detailproduction.module';
 import { InventoryrawmaterialModule } from 'src/inventoryrawmaterial/inventoryrawmaterial.module';
 import { InventoryproductModule } from 'src/inventoryproduct/inventoryproduct.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [ProductionsController],
   providers: [ProductionsService, HandleDBErrors, UuidAdapter],
   imports: [TypeOrmModule.forFeature([Production]), ProductsModule, 
   RawmaterialModule, DetailproductionModule, InventoryrawmaterialModule,
-  InventoryproductModule],
+  InventoryproductModule, AuthModule],
   exports: [TypeOrmModule]
 })
 export class ProductionsModule {}

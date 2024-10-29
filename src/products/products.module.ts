@@ -5,11 +5,12 @@ import { HandleDBErrors, UuidAdapter } from 'src/common/adapters';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { UnitmeasureModule } from 'src/unitmeasure/unitmeasure.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [ProductsController],
   providers: [ProductsService, UuidAdapter, HandleDBErrors],
-  imports: [TypeOrmModule.forFeature([Product]), UnitmeasureModule],
+  imports: [TypeOrmModule.forFeature([Product]), UnitmeasureModule, AuthModule],
   exports:[TypeOrmModule, ProductsService]
 })
 export class ProductsModule {}

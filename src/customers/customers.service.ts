@@ -36,7 +36,7 @@ export class CustomersService {
       qb.andWhere(`LOWER(customers.name) LIKE :name`, { name: `%${name.toLowerCase()}%` });
     }
     if (nit) {
-      qb.andWhere(`LOWER(customers.nit) LIKE :nit`, { nit: `%${nit.toLowerCase()}%` });
+      qb.andWhere(`customers.nit LIKE :nit`, { nit });
     }
     if (phone) {
       qb.andWhere(`customers.phone =:phone`, { phone: phone });

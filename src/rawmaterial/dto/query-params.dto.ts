@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsOptional, IsPositive, IsString, Matches } from "class-validator";
+import { IsOptional, IsPositive, IsString, IsUUID, Matches, MinLength } from "class-validator";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
 
 export class QueryParamsRawMaterials extends PaginationDto{
@@ -19,11 +19,17 @@ export class QueryParamsRawMaterials extends PaginationDto{
 
   @IsOptional()
   @IsString()
-  unitmeasure?:string
+  unitmeasure?:string;
 
   @IsOptional()
   @IsString()
-  supplier?:string
+  supplier?:string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @IsUUID()
+  supplierId?:string;
 }
 
 

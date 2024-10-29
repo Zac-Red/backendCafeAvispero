@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateInventoryrawmaterialDto } from './dto/create-inventoryrawmaterial.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
@@ -16,7 +16,6 @@ export class InventoryrawmaterialService {
     private readonly inventoryrawmaterialRepository: Repository<Inventoryrawmaterial>,
     private readonly inventorymoveservices: InventorymovesService,
     private readonly DBErrors: HandleDBErrors,
-    // private readonly uuidAdapter: UuidAdapter, 
   ){}
 
   async inventoryAdjustment(createinventoryrawmaterialDto: CreateInventoryrawmaterialDto, manager?: EntityManager) {
@@ -53,7 +52,4 @@ export class InventoryrawmaterialService {
     return await getAllPaginated(qb, {page, take: limit}); 
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} inventoryrawmaterial`;
-  }
 }

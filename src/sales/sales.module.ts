@@ -8,12 +8,13 @@ import { CustomersModule } from 'src/customers/customers.module';
 import { ProductsModule } from 'src/products/products.module';
 import { InventoryproductModule } from 'src/inventoryproduct/inventoryproduct.module';
 import { HandleDBErrors, UuidAdapter } from 'src/common/adapters';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   controllers: [SalesController],
   providers: [SalesService, HandleDBErrors, UuidAdapter],
   imports: [TypeOrmModule.forFeature([Sale]), forwardRef(() =>SalesdetailModule), 
-  CustomersModule, ProductsModule, InventoryproductModule],
+  CustomersModule, ProductsModule, InventoryproductModule, AuthModule],
   exports: [TypeOrmModule, SalesService]
 })
 export class SalesModule {}
