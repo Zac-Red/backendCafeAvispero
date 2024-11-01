@@ -17,7 +17,7 @@ export class CreateSupplierDto {
   @IsNumber()
   @IsPositive()
   @IsOptional()
-  dpi?:number;
+  dpi:number;
 
   @IsString()
   @MinLength(1)

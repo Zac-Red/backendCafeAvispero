@@ -9,7 +9,9 @@ export class Customer {
   @Column('text')
   name:string;
 
-  @Column('int')
+  @Column('bigint', {
+    default: 0
+  })
   phone:number;
 
   @Column('text')

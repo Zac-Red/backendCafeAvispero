@@ -15,13 +15,14 @@ export class Supplier {
   @Column('text')
   namecontact:string;
 
-  @Column('int',{
+  @Column('bigint',{
     default: 0,
   })
   tel:number;
 
-  @Column('int', {
-    unique: true
+  @Column('bigint', {
+    unique: true,
+    nullable: true
   })
   dpi:number;
 

@@ -20,13 +20,13 @@ export class User {
   @Column('text')
   lastname:string;
 
-  @Column('int', {
+  @Column('bigint', {
     nullable: false,
     unique: true
   })
   dpi: number;
 
-  @Column('int', {
+  @Column('bigint', {
     nullable: false,
     default: 0
   })
